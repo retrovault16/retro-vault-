@@ -63,6 +63,7 @@ footer{text-align:center;color:var(--mu);padding:24px 16px 40px;font-size:.85rem
 <footer>RETRO VAULT &middot; Vintage, gothic &amp; retro accessories<br><a href="#admin">Owner login</a></footer>
 <div class="ov" id="ov"><div class="box" id="box"></div></div><div id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 const SB_URL="https://mvcyuzzphtlknpmesvrx.supabase.co",SB_KEY="sb_publishable_2x1EMSyv2ByA0tLLO0nKdw_JFf2KrSE";
 let sb=null;try{sb=supabase.createClient(SB_URL,SB_KEY)}catch(e){}
@@ -147,8 +148,31 @@ function products(){
 function shrink(f){return new Promise((res,rej)=>{const im=new Image();im.onload=()=>{const k=Math.min(1,1200/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*k;c.height=im.height*k;c.getContext("2d").drawImage(im,0,0,c.width,c.height);
   c.toBlob(async b=>{const path=uid()+".jpg",r=await sb.storage.from("products").upload(path,b,{contentType:"image/jpeg"});if(r.error)return rej(r.error);res(sb.storage.from("products").getPublicUrl(path).data.publicUrl)},"image/jpeg",.82)};im.onerror=rej;im.src=URL.createObjectURL(f)})}
 function shipTab(){
- $("#pane").innerHTML=`<p class="note">Prices imported from your file mes-tarifs-appliques. A price of 0 for both columns means delivery is not available there. Changes save automatically.</p><div class="ship"><b>Wilaya</b><b>Home</b><b>Stop desk</b></div>`+Object.entries(S).map(([w,[h,d]])=>`<div class="ship"><span>${esc(w)}</span><input type="number" data-w="${esc(w)}" data-k="0" value="${h}"><input type="number" data-w="${esc(w)}" data-k="1" value="${d}"></div>`).join("");
- document.querySelectorAll("[data-w]").forEach(i=>i.onchange=()=>{S[i.dataset.w][+i.dataset.k]=+i.value||0;sb.from("shipping").upsert({wilaya:i.dataset.w,home:S[i.dataset.w][0],desk:S[i.dataset.w][1],n:parseInt(i.dataset.w)})})}
+ $("#pane").innerHTML=`<p class="note">Edit any price, or upload an Excel file with the columns <b>Wilaya</b>, <b>Domicile</b> and <b>Stop Desk</b>. Nothing is changed in the shop until you click <b>Save prices</b> at the bottom. A price of 0 for both columns means delivery is not available there.</p>
+ <input type="file" id="xf" accept=".xlsx,.xls,.csv" hidden><button class="btn" id="xb">Upload Excel file</button>
+ <div class="ship" style="margin-top:16px"><b>Wilaya</b><b>Home</b><b>Stop desk</b></div>`+Object.entries(S).map(([w,[h,d]])=>`<div class="ship"><span>${esc(w)}</span><input type="number" min="0" data-w="${esc(w)}" data-k="0" value="${h}"><input type="number" min="0" data-w="${esc(w)}" data-k="1" value="${d}"></div>`).join("")+`<button class="btn" id="sv" style="width:100%;margin-top:16px;padding:14px">Save prices</button>`;
+ document.querySelectorAll("[data-w]").forEach(i=>i.onchange=()=>{S[i.dataset.w][+i.dataset.k]=+i.value||0});
+ $("#xb").onclick=()=>$("#xf").click();
+ $("#xf").onchange=e=>{if(e.target.files[0])readXls(e.target.files[0])};
+ $("#sv").onclick=saveShip}
+async function saveShip(){
+ const rows=Object.entries(S).map(([w,[a,b]])=>({wilaya:w,home:a,desk:b,n:parseInt(w)}));
+ const r=await sb.from("shipping").upsert(rows);if(r.error)return toast("Could not save: "+r.error.message);
+ const ex=await sb.from("shipping").select("wilaya"),old=(ex.data||[]).map(x=>x.wilaya).filter(w=>!(w in S));
+ if(old.length){const d=await sb.from("shipping").delete().in("wilaya",old);if(d.error)return toast("Could not remove old rows: "+d.error.message)}
+ toast("Prices saved")}
+function readXls(f){
+ if(typeof XLSX==="undefined")return toast("Excel reader did not load. Check your internet and reload.");
+ const rd=new FileReader();rd.onload=()=>{try{
+  const wb=XLSX.read(rd.result,{type:"array"}),rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:""});
+  const hi=rows.findIndex(r=>r.some(c=>/^\s*wilaya/i.test(c))&&r.some(c=>/domicile|home/i.test(c)));if(hi<0)throw 0;
+  const H=rows[hi].map(c=>String(c).toLowerCase().trim()),ci=re=>H.findIndex(c=>re.test(c)),cw=ci(/wilaya/),ch=ci(/domicile|home/),cd=ci(/stop|desk|bureau/),cn=ci(/^n[°o]?$/);
+  if(cw<0||ch<0||cd<0)throw 0;
+  const num=v=>{const x=parseFloat(String(v).replace(/[^\d.]/g,""));return isNaN(x)?0:x},N={};let i=0;
+  rows.slice(hi+1).forEach(r=>{const w=String(r[cw]).trim();if(!w)return;i++;const n=cn>=0&&num(r[cn])?num(r[cn]):i;N[n+" - "+w]=[num(r[ch]),num(r[cd])]});
+  const k=Object.keys(N).sort((a,b)=>parseInt(a)-parseInt(b));if(!k.length)throw 0;
+  S=Object.fromEntries(k.map(x=>[x,N[x]]));shipTab();toast("Loaded "+k.length+" wilayas. Click Save prices to apply.")}catch(e){toast("Could not read this file. It needs the columns Wilaya, Domicile and Stop Desk.")}};
+ rd.readAsArrayBuffer(f)}
 $("#ov").onclick=e=>{if(e.target.id==="ov")$("#ov").classList.remove("on")};
 (function(){const c=$("#bg"),x=c.getContext("2d"),G=["✦","✧","✦","✧","✦","✧"],R=matchMedia("(prefers-reduced-motion: reduce)").matches;let w,h,ps=[];
  const sz=()=>{w=c.width=innerWidth;h=c.height=innerHeight};sz();addEventListener("resize",sz);
