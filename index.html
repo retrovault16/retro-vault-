@@ -51,7 +51,8 @@ input,select{width:100%;background:#0d0719;color:var(--li);border:1px solid var(
 .ord dl{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;margin:36px 0 0}.ord dt{color:var(--mu)}.ord dd{margin:0}
 .ship{display:grid;grid-template-columns:1fr 90px 90px;gap:6px;align-items:center;margin-bottom:6px}
 .pl{flex-wrap:wrap;display:flex;gap:10px;align-items:center;background:var(--pn);border:1px solid var(--ln);padding:8px;border-radius:6px;margin-bottom:8px}
-.pl img{width:56px;height:56px;object-fit:cover;border-radius:4px}.pl span{flex:1}.pl input{width:90px}
+.vc{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--ln);border-radius:6px;padding:4px 6px;margin:6px 6px 0 0}.vc img,.vc i{width:34px;height:34px;border-radius:50%;object-fit:cover;background:#0d0719;border:1px solid var(--ln);display:inline-block}.vc .btn{padding:4px 8px;margin:0;font-size:.8rem}.vc input{padding:6px;width:130px}
+.pl>img{width:56px;height:56px;object-fit:cover;border-radius:4px}.pl span{flex:1}.pl input{width:90px}
 .note{background:#1d1033;border-left:3px solid var(--pu);padding:10px 12px;color:var(--mu);font-size:.9rem;margin:10px 0}
 #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--pu);color:#12031f;padding:10px 18px;border-radius:4px;z-index:50;display:none}
 footer{text-align:center;color:var(--mu);padding:24px 16px 40px;font-size:.85rem}footer a{color:var(--mu)}
@@ -90,7 +91,7 @@ const W=[["Adrar", 1300, 900], ["Chlef", 600, 450], ["Laghouat", 950, 600], ["Ou
 const defShip=()=>Object.fromEntries(W.map(([w,h,d],i)=>[(i+1)+" - "+w,[h,d]]));
 let P=[],O=[],S=defShip(),cat="All",db=null,assets=true,isAdmin=false,tab="orders",filt="all";
 const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const clean=s=>s.replace(/\.[^.]+$/,"").replace(/[_-]+/g," ").normalize("NFC").trim(),money=n=>Number(n).toLocaleString("en")+" DZD",uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const vs=p=>{try{const a=JSON.parse(p.variants);if(Array.isArray(a)&&a.length)return a}catch(e){}return(p.colors||"").split(",").map(s=>s.trim()).filter(Boolean).map(n=>({n,i:""}))},clean=s=>s.replace(/\.[^.]+$/,"").replace(/[_-]+/g," ").normalize("NFC").trim(),money=n=>Number(n).toLocaleString("en")+" DZD",uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 function toast(m){const t=$("#toast");t.textContent=m;t.style.display="block";clearTimeout(t.h);t.h=setTimeout(()=>t.style.display="none",2600)}
 async function put(col,id,obj){const r=await sb.from(col).insert(obj);if(r.error){toast(r.error.message);throw r.error}}
 async function del(col,id){const r=await sb.from(col).delete().eq("id",id);if(r.error)toast(r.error.message)}
@@ -116,8 +117,8 @@ const closeM=()=>{$("#ov").classList.remove("on");if(/^#p-/.test(location.hash))
 function modal(h){$("#box").innerHTML=`<button class="x" aria-label="Close">&times;</button>`+h;$("#ov").classList.add("on");$(".x").onclick=closeM}
 function orderForm(id){
  const p=P.find(x=>x.id===id);if(!p)return;trk("ViewContent",{content_name:p.name,content_category:p.cat,content_type:"product",value:p.price,currency:"DZD"});
- const cs=(p.colors||"").split(",").map(s=>s.trim()).filter(Boolean),cl=cs.length?`<label>Color</label><div class="row" style="flex-wrap:wrap">${cs.map(c=>`<label class="opt"><input type="radio" name="color" value="${esc(c)}" required>${esc(c)}</label>`).join("")}</div>`:"";
- modal(`<img src="${esc(p.img)}" alt="" style="width:100%;max-height:260px;object-fit:cover;border-radius:6px;margin-bottom:10px"><h2>${esc(p.name)}</h2><div class="price">${money(p.price)}</div>
+ const cs=vs(p),cl=cs.length?`<label>Color</label><div class="row" style="flex-wrap:wrap">${cs.map(c=>`<label class="opt">${c.i?`<img src="${esc(c.i)}" alt="" style="width:44px;height:44px;border-radius:50%;object-fit:cover">`:""}<input type="radio" name="color" value="${esc(c.n)}" required>${esc(c.n)}</label>`).join("")}</div>`:"";
+ modal(`<img id="mi" src="${esc(p.img)}" alt="" style="width:100%;max-height:260px;object-fit:cover;border-radius:6px;margin-bottom:10px"><h2>${esc(p.name)}</h2><div class="price">${money(p.price)}</div>
  <form id="f">${cl}<label>Full name</label><input name="name" required autocomplete="name">
  <label>Phone number</label><input name="phone" type="tel" required pattern="0[5-7][0-9]{8}" placeholder="05XXXXXXXX" autocomplete="tel">
  <label>Wilaya</label><select name="wilaya" required><option value="">Choose your wilaya</option>${Object.keys(S).map(w=>`<option ${S[w][0]+S[w][1]===0?"disabled":""}>${esc(w)}${S[w][0]+S[w][1]===0?" (not available)":""}</option>`).join("")}</select>
@@ -130,7 +131,7 @@ function orderForm(id){
  const f=$("#f"),calc=()=>{const q=+f.qty.value||1,w=f.wilaya.value,t=f.type.value,sh=w?ship(w,t):0;
   $("#ad").style.display=t==="home"?"block":"none";f.address.required=t==="home";
   $("#s1").textContent=money(p.price*q);$("#s2").textContent=w?money(sh):"Choose wilaya";$("#s3").textContent=money(p.price*q+sh)};
- let ic=0;f.oninput=()=>{if(!ic){ic=1;trk("InitiateCheckout",{content_name:p.name,value:p.price,currency:"DZD"})}calc()};calc();
+ let ic=0;f.oninput=()=>{if(!ic){ic=1;trk("InitiateCheckout",{content_name:p.name,value:p.price,currency:"DZD"})}if(f.color){const c=cs.find(x=>x.n===f.color.value);if(c&&c.i)$("#mi").src=c.i}calc()};calc();
  f.onsubmit=async e=>{e.preventDefault();const q=+f.qty.value||1,sh=ship(f.wilaya.value,f.type.value);
   const o={id:uid(),ts:Date.now(),name:f.name.value.trim(),phone:f.phone.value.trim(),wilaya:f.wilaya.value,commune:f.commune.value.trim(),address:f.type.value==="home"?f.address.value.trim():"Stop desk",type:f.type.value,qty:q,product:p.name,color:f.color?f.color.value:"",img:p.img,price:p.price*q,ship:sh,total:p.price*q+sh,status:"waiting"};
   const r=await sb.from("orders").insert(o);if(r.error){toast("Could not send the order. Please try again.");return}trk("Purchase",{value:o.total,currency:"DZD",content_name:o.product,content_type:"product",num_items:o.qty});
@@ -158,17 +159,21 @@ function products(){
  <label>Photos (select as many as you want, each photo becomes one product)</label><input id="uf" type="file" accept="image/*" multiple><div id="nm"></div>
  <button class="btn" id="ub" style="margin-top:12px">Upload photos</button><div id="pg" class="price" style="margin-top:8px"></div>
  ${assets?"":`<p class="note">Image storage is limited to this browser in preview mode. In a hosted shop, uploads are unlimited.</p>`}</div>
- <h3 style="margin:20px 0 10px">Your products (${P.length})</h3>`+P.map(p=>`<div class="pl"><img src="${esc(p.img)}" alt=""><span><input data-n="${p.id}" value="${esc(p.name)}" aria-label="Name" style="width:100%"><input data-c="${p.id}" value="${esc(p.colors||"")}" placeholder="Colors, e.g. Red, Black" aria-label="Colors" style="width:100%"><small style="color:var(--mu)">${esc(p.cat)}</small></span><input type="number" value="${p.price}" data-p="${p.id}" aria-label="Price"><button class="btn g" data-l="${p.id}">Copy link</button><button class="btn g" data-x="${p.id}">Delete</button></div>`).join("");
+ <h3 style="margin:20px 0 10px">Your products (${P.length})</h3>`+P.map(p=>`<div class="pl"><img src="${esc(p.img)}" alt=""><span><input data-n="${p.id}" value="${esc(p.name)}" aria-label="Name" style="width:100%"><small style="color:var(--mu)">${esc(p.cat)}</small></span><input type="number" value="${p.price}" data-p="${p.id}" aria-label="Price"><button class="btn g" data-l="${p.id}">Copy link</button><button class="btn g" data-x="${p.id}">Delete</button><div style="flex-basis:100%">${vs(p).map((v,i)=>`<span class="vc">${v.i?`<img src="${esc(v.i)}" alt="">`:`<i></i>`}<b>${esc(v.n)}</b><button class="btn g" data-vp="${p.id}:${i}">Photo</button><button class="btn g" data-vx="${p.id}:${i}" aria-label="Remove color">&times;</button></span>`).join("")}<span class="vc"><input data-va="${p.id}" placeholder="New color name"><button class="btn g" data-vadd="${p.id}">Add</button></span></div></div>`).join("");
  $("#uf").onchange=()=>{$("#nm").innerHTML=[...$("#uf").files].map((f,i)=>`<label>Name for photo ${i+1}</label><input class="nmi" value="${esc(clean(f.name))}">`).join("")};
  $("#ub").onclick=async()=>{const fs=[...$("#uf").files];if(!fs.length)return toast("Choose photos first");let n=0;const cols=[...document.querySelectorAll(".uc:checked")].map(x=>x.value).concat($("#ucx").value.split(",").map(s=>s.trim()).filter(Boolean)).join(", ");
-  for(const f of fs){$("#pg").textContent=`Uploading ${++n} of ${fs.length}...`;try{const img=await shrink(f);const p={id:uid(),cat:$("#uc").value,name:(document.querySelectorAll(".nmi")[n-1]?.value||clean(f.name)).trim(),price:+$("#up").value||0,colors:cols,img};P.push(p);await put("products",p.id,p)}catch(e){toast("Failed: "+f.name)}}
+  for(const f of fs){$("#pg").textContent=`Uploading ${++n} of ${fs.length}...`;try{const img=await shrink(f);const p={id:uid(),cat:$("#uc").value,name:(document.querySelectorAll(".nmi")[n-1]?.value||clean(f.name)).trim(),price:+$("#up").value||0,colors:cols,variants:JSON.stringify(cols?cols.split(", ").map(n=>({n,i:""})):[]),img};P.push(p);await put("products",p.id,p)}catch(e){toast("Failed: "+f.name)}}
   toast("Done");products()};
  document.querySelectorAll("[data-p]").forEach(i=>i.onchange=async()=>{const p=P.find(x=>x.id===i.dataset.p);p.price=+i.value||0;await sb.from("products").update({price:p.price}).eq("id",p.id);toast("Price saved")});
  document.querySelectorAll("[data-n]").forEach(i=>i.onchange=async()=>{const p=P.find(x=>x.id===i.dataset.n);p.name=i.value.trim()||p.name;await sb.from("products").update({name:p.name}).eq("id",p.id);toast("Name saved")});
+ const saveV=async(p,v)=>{p.variants=JSON.stringify(v);p.colors=v.map(x=>x.n).join(", ");const r=await sb.from("products").update({variants:p.variants,colors:p.colors}).eq("id",p.id);if(r.error)toast(r.error.message);products()};
+ document.querySelectorAll("[data-vadd]").forEach(b=>b.onclick=()=>{const p=P.find(x=>x.id===b.dataset.vadd),n=document.querySelector('[data-va="'+p.id+'"]').value.trim();if(!n)return toast("Type a color name");saveV(p,vs(p).concat([{n,i:""}]))});
+ document.querySelectorAll("[data-vx]").forEach(b=>b.onclick=()=>{const[id,i]=b.dataset.vx.split(":"),p=P.find(x=>x.id===id),v=vs(p);v.splice(+i,1);saveV(p,v)});
+ document.querySelectorAll("[data-vp]").forEach(b=>b.onclick=()=>{const[id,i]=b.dataset.vp.split(":"),p=P.find(x=>x.id===id),v=vs(p),inp=document.createElement("input");inp.type="file";inp.accept="image/*";inp.onchange=async()=>{if(!inp.files[0])return;toast("Uploading photo...");try{v[+i].i=await shrink(inp.files[0],900);saveV(p,v)}catch(e){toast("Upload failed")}};inp.click()});
  document.querySelectorAll("[data-c]").forEach(i=>i.onchange=async()=>{const p=P.find(x=>x.id===i.dataset.c);p.colors=i.value.split(",").map(s=>s.trim()).filter(Boolean).join(", ");i.value=p.colors;const r=await sb.from("products").update({colors:p.colors}).eq("id",p.id);toast(r.error?"Could not save colors":"Colors saved")});
  document.querySelectorAll("[data-l]").forEach(b=>b.onclick=()=>{const u=location.origin+location.pathname+"#p-"+b.dataset.l;(navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>toast("Link copied"),()=>prompt("Copy this link:",u))});
  document.querySelectorAll("[data-x]").forEach(b=>b.onclick=async()=>{if(!confirm("Delete this product?"))return;P=P.filter(x=>x.id!==b.dataset.x);await del("products",b.dataset.x);admin()})}
-function shrink(f){return new Promise((res,rej)=>{const im=new Image();im.onload=()=>{const k=Math.min(1,1200/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*k;c.height=im.height*k;c.getContext("2d").drawImage(im,0,0,c.width,c.height);
+function shrink(f,m=1200){return new Promise((res,rej)=>{const im=new Image();im.onload=()=>{const k=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*k;c.height=im.height*k;c.getContext("2d").drawImage(im,0,0,c.width,c.height);
   c.toBlob(async b=>{const path=uid()+".jpg",r=await sb.storage.from("products").upload(path,b,{contentType:"image/jpeg"});if(r.error)return rej(r.error);res(sb.storage.from("products").getPublicUrl(path).data.publicUrl)},"image/jpeg",.82)};im.onerror=rej;im.src=URL.createObjectURL(f)})}
 function shipTab(){
  $("#pane").innerHTML=`<p class="note">Edit any price, or upload an Excel file with the columns <b>Wilaya</b>, <b>Domicile</b> and <b>Stop Desk</b>. Nothing is changed in the shop until you click <b>Save prices</b> at the bottom. A price of 0 for both columns means delivery is not available there.</p>
