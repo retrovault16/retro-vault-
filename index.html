@@ -57,6 +57,7 @@ input,select{width:100%;background:#0d0719;color:var(--li);border:1px solid var(
 #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--pu);color:#12031f;padding:10px 18px;border-radius:4px;z-index:50;display:none}
 footer{text-align:center;color:var(--mu);padding:24px 16px 40px;font-size:.85rem}footer a{color:var(--mu)}
 @media(max-width:560px){.ord .st{position:static;margin-bottom:6px}.ord dl{margin-top:6px}}
+.old{text-decoration:line-through;color:var(--mu);font-weight:400;margin-right:8px}
 </style><!-- Meta Pixel Code -->
 <script>
 !function(f,b,e,v,n,t,s)
@@ -93,6 +94,8 @@ let P=[],O=[],S=defShip(),cat="All",db=null,assets=true,isAdmin=false,tab="order
 const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const cmp=(a,b)=>(a.pos||0)-(b.pos||0)||String(b.created_at||"").localeCompare(String(a.created_at||""));
 const vs=p=>{try{const a=JSON.parse(p.variants);if(Array.isArray(a)&&a.length)return a}catch(e){}return(p.colors||"").split(",").map(s=>s.trim()).filter(Boolean).map(n=>({n,i:""}))},clean=s=>s.replace(/\.[^.]+$/,"").replace(/[_-]+/g," ").normalize("NFC").trim(),money=n=>Number(n).toLocaleString("en")+" DZD",uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const cur=p=>(+p.sale>0&&+p.sale<+p.price)?+p.sale:+p.price;
+const pr=p=>cur(p)<+p.price?`<s class="old">${money(p.price)}</s>${money(cur(p))}`:money(p.price);
 function toast(m){const t=$("#toast");t.textContent=m;t.style.display="block";clearTimeout(t.h);t.h=setTimeout(()=>t.style.display="none",2600)}
 async function put(col,id,obj){const r=await sb.from(col).insert(obj);if(r.error){toast(r.error.message);throw r.error}}
 async function del(col,id){const r=await sb.from(col).delete().eq("id",id);if(r.error)toast(r.error.message)}
@@ -111,15 +114,15 @@ addEventListener("hashchange",render);
 function shop(){
  const list=P.filter(p=>cat==="All"||p.cat===cat);
  $("#app").innerHTML=`<nav class="chips">${["All",...CATS].map(c=>`<button class="chip ${c===cat?"on":""}" data-c="${c}">${c}</button>`).join("")}</nav>
- <div class="grid">${list.map(p=>`<article class="card"><img src="${esc(p.img)}" alt="${esc(p.name)}" loading="lazy"><div class="b"><h3>${esc(p.name)}</h3><div class="price">${money(p.price)}</div>${p.colors?`<div style="color:var(--mu);font-size:.85rem">${esc(p.colors)}</div>`:""}<button class="btn" data-o="${p.id}">Order now</button></div></article>`).join("")||`<div class="empty">The vault is empty for now. Check back soon.</div>`}</div>`;
+ <div class="grid">${list.map(p=>`<article class="card"><img src="${esc(p.img)}" alt="${esc(p.name)}" loading="lazy"><div class="b"><h3>${esc(p.name)}</h3><div class="price">${pr(p)}</div>${p.colors?`<div style="color:var(--mu);font-size:.85rem">${esc(p.colors)}</div>`:""}<button class="btn" data-o="${p.id}">Order now</button></div></article>`).join("")||`<div class="empty">The vault is empty for now. Check back soon.</div>`}</div>`;
  document.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{cat=b.dataset.c;shop()});
  document.querySelectorAll("[data-o]").forEach(b=>b.onclick=()=>orderForm(b.dataset.o))}
 const closeM=()=>{$("#ov").classList.remove("on");if(/^#p-/.test(location.hash))history.replaceState(null,"",location.pathname+location.search)};
 function modal(h){$("#box").innerHTML=`<button class="x" aria-label="Close">&times;</button>`+h;$("#ov").classList.add("on");$(".x").onclick=closeM}
 function orderForm(id){
- const p=P.find(x=>x.id===id);if(!p)return;trk("ViewContent",{content_name:p.name,content_category:p.cat,content_type:"product",value:p.price,currency:"DZD"});
+ const p=P.find(x=>x.id===id);if(!p)return;trk("ViewContent",{content_name:p.name,content_category:p.cat,content_type:"product",value:cur(p),currency:"DZD"});
  const cs=vs(p),cl=cs.length?`<label>Color</label><div class="row" style="flex-wrap:wrap">${cs.map(c=>`<label class="opt">${c.i?`<img src="${esc(c.i)}" alt="" style="width:44px;height:44px;border-radius:50%;object-fit:cover">`:""}<input type="radio" name="color" value="${esc(c.n)}" required>${esc(c.n)}</label>`).join("")}</div>`:"";
- modal(`<img id="mi" src="${esc(p.img)}" alt="" style="width:100%;max-height:260px;object-fit:cover;border-radius:6px;margin-bottom:10px"><h2>${esc(p.name)}</h2><div class="price">${money(p.price)}</div>
+ modal(`<img id="mi" src="${esc(p.img)}" alt="" style="width:100%;max-height:260px;object-fit:cover;border-radius:6px;margin-bottom:10px"><h2>${esc(p.name)}</h2><div class="price">${pr(p)}</div>
  <form id="f">${cl}<label>Full name</label><input name="name" required autocomplete="name">
  <label>Phone number</label><input name="phone" type="tel" required pattern="0[5-7][0-9]{8}" placeholder="05XXXXXXXX" autocomplete="tel">
  <label>Wilaya</label><select name="wilaya" required><option value="">Choose your wilaya</option>${Object.keys(S).map(w=>`<option ${S[w][0]+S[w][1]===0?"disabled":""}>${esc(w)}${S[w][0]+S[w][1]===0?" (not available)":""}</option>`).join("")}</select>
@@ -131,10 +134,10 @@ function orderForm(id){
  <button class="btn" style="width:100%;margin-top:14px">Confirm order</button></form>`);
  const f=$("#f"),calc=()=>{const q=+f.qty.value||1,w=f.wilaya.value,t=f.type.value,sh=w?ship(w,t):0;
   $("#ad").style.display=t==="home"?"block":"none";f.address.required=t==="home";
-  $("#s1").textContent=money(p.price*q);$("#s2").textContent=w?money(sh):"Choose wilaya";$("#s3").textContent=money(p.price*q+sh)};
- let ic=0;f.oninput=()=>{if(!ic){ic=1;trk("InitiateCheckout",{content_name:p.name,value:p.price,currency:"DZD"})}if(f.color){const c=cs.find(x=>x.n===f.color.value);if(c&&c.i)$("#mi").src=c.i}calc()};calc();
+  $("#s1").textContent=money(cur(p)*q);$("#s2").textContent=w?money(sh):"Choose wilaya";$("#s3").textContent=money(cur(p)*q+sh)};
+ let ic=0;f.oninput=()=>{if(!ic){ic=1;trk("InitiateCheckout",{content_name:p.name,value:cur(p),currency:"DZD"})}if(f.color){const c=cs.find(x=>x.n===f.color.value);if(c&&c.i)$("#mi").src=c.i}calc()};calc();
  f.onsubmit=async e=>{e.preventDefault();const q=+f.qty.value||1,sh=ship(f.wilaya.value,f.type.value);
-  const o={id:uid(),ts:Date.now(),name:f.name.value.trim(),phone:f.phone.value.trim(),wilaya:f.wilaya.value,commune:f.commune.value.trim(),address:f.type.value==="home"?f.address.value.trim():"Stop desk",type:f.type.value,qty:q,product:p.name,color:f.color?f.color.value:"",img:p.img,price:p.price*q,ship:sh,total:p.price*q+sh,status:"waiting"};
+  const o={id:uid(),ts:Date.now(),name:f.name.value.trim(),phone:f.phone.value.trim(),wilaya:f.wilaya.value,commune:f.commune.value.trim(),address:f.type.value==="home"?f.address.value.trim():"Stop desk",type:f.type.value,qty:q,product:p.name,color:f.color?f.color.value:"",img:p.img,price:cur(p)*q,ship:sh,total:cur(p)*q+sh,status:"waiting"};
   const r=await sb.from("orders").insert(o);if(r.error){toast("Could not send the order. Please try again.");return}trk("Purchase",{value:o.total,currency:"DZD",content_name:o.product,content_type:"product",num_items:o.qty});
   modal(`<h2>Thank you, ${esc(o.name)}!</h2><p>Your order for <b>${esc(o.product)}</b> was received. We will call you on ${esc(o.phone)} to confirm it.</p><p class="price">Total: ${money(o.total)}</p>`)}}
 function admin(){
@@ -160,12 +163,15 @@ function products(){
  <label>Photos (select as many as you want, each photo becomes one product)</label><input id="uf" type="file" accept="image/*" multiple><div id="nm"></div>
  <button class="btn" id="ub" style="margin-top:12px">Upload photos</button><div id="pg" class="price" style="margin-top:8px"></div>
  ${assets?"":`<p class="note">Image storage is limited to this browser in preview mode. In a hosted shop, uploads are unlimited.</p>`}</div>
- <h3 style="margin:20px 0 10px">Your products (${P.length})</h3>`+P.map(p=>`<div class="pl"><span style="display:flex;flex-direction:column;gap:4px"><button class="btn g" data-mu="${p.id}" aria-label="Move up" style="padding:2px 9px;margin:0">&#9650;</button><button class="btn g" data-md="${p.id}" aria-label="Move down" style="padding:2px 9px;margin:0">&#9660;</button></span><img src="${esc(p.img)}" alt=""><span><input data-n="${p.id}" value="${esc(p.name)}" aria-label="Name" style="width:100%"><small style="color:var(--mu)">${esc(p.cat)}</small></span><input type="number" value="${p.price}" data-p="${p.id}" aria-label="Price"><button class="btn g" data-l="${p.id}">Copy link</button><button class="btn g" data-x="${p.id}">Delete</button><div style="flex-basis:100%">${vs(p).map((v,i)=>`<span class="vc">${v.i?`<img src="${esc(v.i)}" alt="">`:`<i></i>`}<b>${esc(v.n)}</b><button class="btn g" data-vp="${p.id}:${i}">Photo</button><button class="btn g" data-vx="${p.id}:${i}" aria-label="Remove color">&times;</button></span>`).join("")}<span class="vc"><input data-va="${p.id}" placeholder="New color name"><button class="btn g" data-vadd="${p.id}">Add</button></span></div></div>`).join("");
+ <h3 style="margin:20px 0 10px">Your products (${P.length})</h3>`+P.map(p=>`<div class="pl"><span style="display:flex;flex-direction:column;gap:4px"><button class="btn g" data-mu="${p.id}" aria-label="Move up" style="padding:2px 9px;margin:0">&#9650;</button><button class="btn g" data-md="${p.id}" aria-label="Move down" style="padding:2px 9px;margin:0">&#9660;</button></span><img src="${esc(p.img)}" alt=""><span><input data-n="${p.id}" value="${esc(p.name)}" aria-label="Name" style="width:100%"><small style="color:var(--mu)">${esc(p.cat)}</small></span><input type="number" value="${p.price}" data-p="${p.id}" aria-label="Regular price" title="Regular price"><input type="number" min="0" value="${p.sale||""}" data-sp="${p.id}" placeholder="Sale price" aria-label="Sale price" title="Discounted price (empty = no discount)"><button class="btn g" data-ss="${p.id}">Save sale</button><button class="btn g" data-l="${p.id}">Copy link</button><button class="btn g" data-x="${p.id}">Delete</button><div style="flex-basis:100%">${vs(p).map((v,i)=>`<span class="vc">${v.i?`<img src="${esc(v.i)}" alt="">`:`<i></i>`}<b>${esc(v.n)}</b><button class="btn g" data-vp="${p.id}:${i}">Photo</button><button class="btn g" data-vx="${p.id}:${i}" aria-label="Remove color">&times;</button></span>`).join("")}<span class="vc"><input data-va="${p.id}" placeholder="New color name"><button class="btn g" data-vadd="${p.id}">Add</button></span></div></div>`).join("");
  $("#uf").onchange=()=>{$("#nm").innerHTML=[...$("#uf").files].map((f,i)=>`<label>Name for photo ${i+1}</label><input class="nmi" value="${esc(clean(f.name))}">`).join("")};
  $("#ub").onclick=async()=>{const fs=[...$("#uf").files];if(!fs.length)return toast("Choose photos first");let n=0;const cols=[...document.querySelectorAll(".uc:checked")].map(x=>x.value).concat($("#ucx").value.split(",").map(s=>s.trim()).filter(Boolean)).join(", ");
   for(const f of fs){$("#pg").textContent=`Uploading ${++n} of ${fs.length}...`;try{const img=await shrink(f);const p={id:uid(),cat:$("#uc").value,name:(document.querySelectorAll(".nmi")[n-1]?.value||clean(f.name)).trim(),price:+$("#up").value||0,created_at:new Date().toISOString(),colors:cols,variants:JSON.stringify(cols?cols.split(", ").map(n=>({n,i:""})):[]),img};P.unshift(p);await put("products",p.id,p)}catch(e){toast("Failed: "+f.name)}}
   toast("Done");products()};
  document.querySelectorAll("[data-p]").forEach(i=>i.onchange=async()=>{const p=P.find(x=>x.id===i.dataset.p);p.price=+i.value||0;await sb.from("products").update({price:p.price}).eq("id",p.id);toast("Price saved")});
+ document.querySelectorAll("[data-ss]").forEach(b=>b.onclick=async()=>{const p=P.find(x=>x.id===b.dataset.ss),v=+document.querySelector('[data-sp="'+p.id+'"]').value;
+ if(v>0&&v>=p.price)return toast("Sale price must be lower than the regular price");
+ p.sale=v>0?v:null;const r=await sb.from("products").update({sale:p.sale}).eq("id",p.id);toast(r.error?r.error.message:(p.sale?"Discount saved":"Discount removed"))});
  document.querySelectorAll("[data-n]").forEach(i=>i.onchange=async()=>{const p=P.find(x=>x.id===i.dataset.n);p.name=i.value.trim()||p.name;await sb.from("products").update({name:p.name}).eq("id",p.id);toast("Name saved")});
  document.querySelectorAll("[data-mu]").forEach(b=>b.onclick=()=>moveP(b.dataset.mu,-1));
  document.querySelectorAll("[data-md]").forEach(b=>b.onclick=()=>moveP(b.dataset.md,1));
