@@ -63,6 +63,11 @@ html[dir=rtl] h1,html[dir=rtl] h2,html[dir=rtl] h3{font-family:Cairo,system-ui,s
 html[dir=rtl] .tag{letter-spacing:0}
 html[dir=rtl] input[type=tel]{direction:ltr;text-align:right}
 #lgw{display:flex;justify-content:flex-end}
+#wa{position:fixed;inset-inline-end:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:15;display:flex;align-items:center;gap:8px;padding:12px 18px;border-radius:99px;background:#25D366;color:#fff;font:600 15px/1 Cairo,Outfit,system-ui,sans-serif;text-decoration:none;box-shadow:0 6px 20px #0008,0 0 0 2px #a855f799}
+#wa:hover{transform:translateY(-2px)}
+#soc{display:flex;justify-content:center;gap:14px;margin-bottom:14px}
+#soc a{width:44px;height:44px;border-radius:50%;border:1px solid var(--ln);background:var(--pn);display:grid;place-items:center;color:var(--li)}
+#soc a:hover{background:var(--pu);color:#12031f;border-color:var(--pu)}
 </style><!-- Meta Pixel Code -->
 <script>
 !function(f,b,e,v,n,t,s)
@@ -105,7 +110,7 @@ function applyLang(){const a=isAr(),h=document.documentElement;h.lang=a?"ar":"en
  $("#tg").textContent=T("ارتدِ ما لم يُكتشف بعد","WEAR THE UNFOUND.");
  $("#ft").innerHTML=T("RETRO VAULT &middot; إكسسوارات عتيقة، قوطية وريترو","RETRO VAULT &middot; Vintage, gothic &amp; retro accessories");
  $("#ol").textContent=T("دخول المالك","Owner login");
- const b=$("#lg");b.textContent=L==="ar"?"English":"العربية";b.style.display=location.hash==="#admin"?"none":""}
+ const b=$("#lg");b.textContent=L==="ar"?"English":"العربية";b.style.display=location.hash==="#admin"?"none":"";social()}
 const CATS=["Shirts","Hoodies","Rings","Bracelets","Watches","Caps","Earrings","Necklaces","Hats"];
 const W=[["Adrar", 1300, 900], ["Chlef", 600, 450], ["Laghouat", 950, 600], ["Oum El Bouaghi", 800, 450], ["Batna", 800, 450], ["Bejaia", 800, 450], ["Biskra", 950, 600], ["Bechar", 1100, 750], ["Blida", 700, 450], ["Bouira", 750, 450], ["Tamanrasset", 1550, 1100], ["Tebessa", 900, 500], ["Tlemcen", 850, 500], ["Tiaret", 750, 450], ["Tizi Ouzou", 750, 450], ["Alger", 600, 400], ["Djelfa", 900, 600], ["Jijel", 800, 450], ["Sétif", 800, 450], ["Saida", 800, 500], ["Skikda", 800, 450], ["Sidi Bel Abbès", 750, 450], ["Annaba", 800, 450], ["Guelma", 800, 450], ["Constantine", 800, 450], ["Medea", 700, 450], ["Mostaganem", 750, 450], ["M'Sila", 850, 500], ["Mascara", 700, 450], ["Ouargla", 950, 600], ["Oran", 700, 450], ["El Bayadh", 1000, 750], ["Illizi", 1550, 1150], ["Bordj Bou Arreridj", 800, 450], ["Boumerdes", 750, 450], ["El Tarf", 850, 500], ["Tindouf", 1300, 800], ["Tissemsilt", 700, 450], ["El Oued", 1000, 600], ["Khenchela", 800, 500], ["Souk Ahras", 800, 500], ["Tipaza", 700, 450], ["Mila", 800, 450], ["Ain Defla", 450, 300], ["Naama", 1000, 600], ["Ain Temouchent", 750, 450], ["Ghardaia", 1000, 600], ["Relizane", 750, 450], ["Timimoun", 1350, 900], ["Bordj Badji Mokhtar", 0, 0], ["Ouled Djellal", 900, 550], ["Béni Abbès", 1100, 900], ["In Salah", 1550, 1100], ["In Guezzam", 0, 0], ["Touggourt", 950, 600], ["Djanet", 2200, 1600], ["M'Ghair", 950, 600], ["Meniaa", 950, 600]];
 const defShip=()=>Object.fromEntries(W.map(([w,h,d],i)=>[(i+1)+" - "+w,[h,d]]));
@@ -247,5 +252,20 @@ $("#ov").onclick=e=>{if(e.target.id==="ov")closeM()};
   x.font=p.s+"px serif";x.fillStyle="rgba(168,85,247,"+(p.a*(.7+.3*Math.sin(t/900+p.p)))+")";x.shadowColor="#a855f7";x.shadowBlur=14;x.fillText(p.g,p.x,p.y)});if(!R)requestAnimationFrame(d)}
  requestAnimationFrame(d)})();
 $("#lg").onclick=()=>{L=L==="ar"?"en":"ar";try{localStorage.setItem("lang",L)}catch(e){}render()};
+const WA_NUM="213563409029",IG_URL="https://www.instagram.com/retro_vault66/",FB_URL="https://www.facebook.com/profile.php?id=100064048272757";
+function social(){
+ const adm=location.hash==="#admin";
+ let w=$("#wa");
+ if(!w){w=document.createElement("a");w.id="wa";w.target="_blank";w.rel="noopener";
+  w.innerHTML='<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 0 0-7.7 13.6L3 21l4.5-1.2A9 9 0 1 0 12 3z"/><path d="M9 8.5c0 3.5 3 6.5 6.5 6.5l1-1.5-2-1-1 .8c-1-.4-1.9-1.3-2.3-2.3l.8-1-1-2z"/></svg><span></span>';
+  w.onclick=()=>trk("Contact");document.body.appendChild(w)}
+ w.href="https://wa.me/"+WA_NUM+"?text="+encodeURIComponent(T("مرحبا Retro Vault، أريد الاستفسار عن منتج","Hello Retro Vault, I'd like to ask about a product"));
+ w.lastChild.textContent=T("تواصل عبر واتساب","WhatsApp");
+ w.style.display=adm?"none":"";
+ let s=$("#soc");
+ if(!s){s=document.createElement("div");s.id="soc";
+  s.innerHTML='<a href="'+IG_URL+'" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></a><a href="'+FB_URL+'" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M14 8V6.5c0-.7.3-1 1-1h2V2h-3C11 2 9.5 3.8 9.5 6.5V8H7v3.5h2.5V22H14V11.5h2.8L17.2 8z"/></svg></a>';
+  const f=$("footer");f.insertBefore(s,f.firstChild)}
+ s.style.display=adm?"none":"flex"}
 init();
 </script></body></html>
