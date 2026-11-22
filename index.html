@@ -45,10 +45,10 @@ input,select{width:100%;background:#0d0719;color:var(--li);border:1px solid var(
 .x{position:absolute;top:8px;inset-inline-end:12px;background:none;border:0;color:var(--li);font-size:1.6rem;cursor:pointer}
 .tabs{display:flex;gap:8px;margin:18px 0;flex-wrap:wrap}
 .ord{background:var(--pn);border:1px solid var(--ln);border-radius:6px;padding:14px;margin-bottom:12px;position:relative}
-.ord .st{position:absolute;top:10px;right:10px;display:flex;gap:4px}
+.ord .st{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
 .st button{border:1px solid var(--ln);background:#0d0719;color:var(--mu);padding:5px 9px;border-radius:4px;cursor:pointer;font-size:.8rem}
-.st .waiting.on{background:var(--wa);color:#000}.st .confirmed.on{background:var(--ok);color:#000}.st .false.on{background:var(--no);color:#000}
-.ord dl{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;margin:36px 0 0}.ord dt{color:var(--mu)}.ord dd{margin:0}
+.st .waiting.on{background:var(--wa);color:#000}.st .confirmed.on{background:var(--ok);color:#000}.st .false.on{background:var(--no);color:#000}.st .shipping.on{background:#60a5fa;color:#000}.st .contacted.on{background:var(--ok);color:#000}.st .noanswer.on{background:#fb923c;color:#000}
+.ord dl{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;margin:0}.ord dt{color:var(--mu)}.ord dd{margin:0}
 .ship{display:grid;grid-template-columns:1fr 90px 90px;gap:6px;align-items:center;margin-bottom:6px}
 .pl{flex-wrap:wrap;display:flex;gap:10px;align-items:center;background:var(--pn);border:1px solid var(--ln);padding:8px;border-radius:6px;margin-bottom:8px}
 .vc{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--ln);border-radius:6px;padding:4px 6px;margin:6px 6px 0 0}.vc img,.vc i{width:34px;height:34px;border-radius:50%;object-fit:cover;background:#0d0719;border:1px solid var(--ln);display:inline-block}.vc .btn{padding:4px 8px;margin:0;font-size:.8rem}.vc input{padding:6px;width:130px}
@@ -175,7 +175,7 @@ function admin(){
  $("#app").innerHTML=`<div class="tabs">${tb("orders","Orders ("+O.length+")")}${tb("products","Products")}${tb("ship","Shipping prices")}<a class="chip" href="#" style="text-decoration:none">View shop</a><button class="chip" id="lo">Log out</button></div><div id="pane"></div>`;
  document.querySelectorAll("[data-t]").forEach(b=>b.onclick=async()=>{tab=b.dataset.t;await load();admin()});
  $("#lo").onclick=async()=>{await sb.auth.signOut();isAdmin=false;O=[];admin()};({orders,products,ship:shipTab})[tab]()}
-const ST=[["waiting","Waiting"],["confirmed","Confirmed"],["false","False order"]];
+const ST=[["waiting","Waiting"],["confirmed","Confirmed"],["false","False order"],["shipping","En Livraison"],["contacted","Client Contacté"],["noanswer","Ne réponds pas"]];
 function orders(){
  const list=O.filter(o=>filt==="all"||o.status===filt).sort((a,b)=>b.ts-a.ts);
  $("#pane").innerHTML=`<div class="tabs">${[["all","All"],...ST].map(([k,l])=>`<button class="chip ${filt===k?"on":""}" data-f="${k}">${l}${k==="all"?"":" ("+O.filter(o=>o.status===k).length+")"}</button>`).join("")}</div>`+
@@ -183,7 +183,7 @@ function orders(){
  <dl><dt>Name</dt><dd>${esc(o.name)}</dd><dt>Phone</dt><dd><a style="color:var(--li)" href="tel:${esc(o.phone)}">${esc(o.phone)}</a></dd><dt>Wilaya</dt><dd>${esc(o.wilaya)}</dd><dt>City</dt><dd>${esc(o.commune)}</dd><dt>Address</dt><dd>${esc(o.address)}</dd><dt>Product</dt><dd>${esc(o.product)} &times; ${o.qty}</dd><dt>Color</dt><dd>${esc(o.color||"-")}</dd><dt>Price</dt><dd>${money(o.price)}</dd><dt>Delivery</dt><dd>${money(o.ship)} (${o.type==="desk"?"stop desk":"home"})</dd><dt>Total</dt><dd><b>${money(o.total)}</b></dd><dt>Date</dt><dd>${new Date(o.ts).toLocaleString()}</dd></dl>
  <button class="btn g" style="margin-top:10px" data-d="${o.id}">Delete order</button></div>`).join("")||`<div class="empty">No orders here yet.</div>`);
  document.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{filt=b.dataset.f;orders()});
- document.querySelectorAll("[data-s]").forEach(b=>b.onclick=async()=>{const[i,k]=b.dataset.s.split(":"),o=O.find(x=>x.id===i);o.status=k;await sb.from("orders").update({status:k}).eq("id",i);orders()});
+ document.querySelectorAll("[data-s]").forEach(b=>b.onclick=async()=>{const[i,k]=b.dataset.s.split(":"),o=O.find(x=>x.id===i),old=o.status;o.status=k;const r=await sb.from("orders").update({status:k}).eq("id",i);if(r.error){o.status=old;toast("Could not save status")}orders()});
  document.querySelectorAll("[data-d]").forEach(b=>b.onclick=async()=>{if(!confirm("Delete this order?"))return;O=O.filter(x=>x.id!==b.dataset.d);await del("orders",b.dataset.d);admin()})}
 function products(){
  $("#pane").innerHTML=`<div class="box" style="max-width:none"><h3>Add products</h3><div class="row"><div><label>Category</label><select id="uc">${CATS.map(c=>`<option>${c}</option>`).join("")}</select></div><div><label>Price (DZD)</label><input id="up" type="number" min="0" value="2500"></div></div>
