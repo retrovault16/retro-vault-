@@ -2,7 +2,21 @@
 <html lang="ar" dir="rtl"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>RETRO VAULT</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Outfit:wght@400;600&family=Cairo:wght@400;600;700&display=swap">
+<link rel="preconnect" href="https://mvcyuzzphtlknpmesvrx.supabase.co" crossorigin>
+<script>
+/* Start loading products the moment the page starts, before any library is ready */
+(function(){try{
+var U="https://mvcyuzzphtlknpmesvrx.supabase.co/rest/v1/",H={apikey:"sb_publishable_2x1EMSyv2ByA0tLLO0nKdw_JFf2KrSE"};
+var g=function(q){return fetch(U+q,{headers:H}).then(function(r){if(!r.ok)throw 0;return r.json()})};
+var m=location.hash.match(/^#p-(.+)$/),w=window.__pre={};
+if(m)w.one=g("products?select=*&id=eq."+encodeURIComponent(m[1])).catch(function(){return null});
+w.p=g("products?select=*&order=pos.asc,created_at.desc").catch(function(){return g("products?select=*")}).catch(function(){return null});
+w.s=g("shipping?select=*&order=n.asc").catch(function(){return null});
+}catch(e){}})();
+</script>
+<script id="sbjs" async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Outfit:wght@400;600&family=Cairo:wght@400;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Outfit:wght@400;600&family=Cairo:wght@400;600;700&display=swap"></noscript>
 <style>
 :root{--bg:#0a0614;--pn:#150c26;--ln:#3b1d6b;--pu:#a855f7;--li:#e9d5ff;--mu:#a78bca;--ok:#4ade80;--wa:#f5b942;--no:#f87171;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark}
 *,*:before,*:after{box-sizing:inherit}html{scroll-padding-top:env(safe-area-inset-top,0px)}
@@ -68,6 +82,10 @@ html[dir=rtl] input[type=tel]{direction:ltr;text-align:right}
 #soc{display:flex;justify-content:center;gap:14px;margin-bottom:14px}
 #soc a{width:44px;height:44px;border-radius:50%;border:1px solid var(--ln);background:var(--pn);display:grid;place-items:center;color:var(--li)}
 #soc a:hover{background:var(--pu);color:#12031f;border-color:var(--pu)}
+.card{content-visibility:auto;contain-intrinsic-size:auto 340px}
+.sk{pointer-events:none}.sk .im{aspect-ratio:1;background:linear-gradient(90deg,#150c26,#24103f,#150c26);background-size:200% 100%;animation:shm 1.2s linear infinite}.sk i{display:block;height:14px;border-radius:4px;background:#24103f;margin:6px 0}.sk i+i{width:50%}
+@keyframes shm{to{background-position:-200% 0}}@media(prefers-reduced-motion:reduce){.sk .im{animation:none}}
+.st .retour.on{background:#f472b6;color:#000}
 </style><!-- Meta Pixel Code -->
 <script>
 !function(f,b,e,v,n,t,s)
@@ -91,13 +109,14 @@ src="https://www.facebook.com/tr?id=1155778730137051&ev=PageView&noscript=1"
 <main id="app"></main>
 <footer><span id="ft">RETRO VAULT &middot; Vintage, gothic &amp; retro accessories</span><br><a href="#admin" id="ol">Owner login</a></footer>
 <div class="ov" id="ov"><div class="box" id="box"></div></div><div id="toast"></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 const SB_URL="https://mvcyuzzphtlknpmesvrx.supabase.co",SB_KEY="sb_publishable_2x1EMSyv2ByA0tLLO0nKdw_JFf2KrSE";
-let sb=null;try{sb=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true}})}catch(e){}
+let sb=null;
+const sbReady=new Promise(res=>{const mk=()=>{try{sb=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true}})}catch(e){}res(sb)},t=document.getElementById("sbjs");
+ if(window.supabase)mk();else{t.addEventListener("load",mk);t.addEventListener("error",()=>res(null))}});
+const hasSess=()=>{try{return!!localStorage.getItem("sb-mvcyuzzphtlknpmesvrx-auth-token")}catch(e){return false}};
 let vcId=null;
-const trk=(e,d,o)=>{try{if(isAdmin||localStorage.getItem("notrack")==="1")return;window.fbq&&(o?fbq("track",e,d,o):fbq("track",e,d))}catch(x){}};
+const trk=(e,d,o)=>{try{if(isAdmin||hasSess()||localStorage.getItem("notrack")==="1")return;window.fbq&&(o?fbq("track",e,d,o):fbq("track",e,d))}catch(x){}};
 let L="ar";try{L=localStorage.getItem("lang")==="en"?"en":"ar"}catch(e){}
 const isAr=()=>L==="ar"&&location.hash!=="#admin",T=(a,e)=>isAr()?a:e;
 const CAT_AR={All:"الكل",Shirts:"قمصان",Hoodies:"هوديز",Rings:"خواتم",Bracelets:"أساور",Watches:"ساعات",Caps:"كاب",Earrings:"أقراط",Necklaces:"قلادات",Hats:"قبعات"},catL=c=>isAr()?(CAT_AR[c]||c):c;
@@ -115,7 +134,8 @@ function applyLang(){const a=isAr(),h=document.documentElement;h.lang=a?"ar":"en
 const CATS=["Shirts","Hoodies","Rings","Bracelets","Watches","Caps","Earrings","Necklaces","Hats"];
 const W=[["Adrar", 1300, 900], ["Chlef", 600, 450], ["Laghouat", 950, 600], ["Oum El Bouaghi", 800, 450], ["Batna", 800, 450], ["Bejaia", 800, 450], ["Biskra", 950, 600], ["Bechar", 1100, 750], ["Blida", 700, 450], ["Bouira", 750, 450], ["Tamanrasset", 1550, 1100], ["Tebessa", 900, 500], ["Tlemcen", 850, 500], ["Tiaret", 750, 450], ["Tizi Ouzou", 750, 450], ["Alger", 600, 400], ["Djelfa", 900, 600], ["Jijel", 800, 450], ["Sétif", 800, 450], ["Saida", 800, 500], ["Skikda", 800, 450], ["Sidi Bel Abbès", 750, 450], ["Annaba", 800, 450], ["Guelma", 800, 450], ["Constantine", 800, 450], ["Medea", 700, 450], ["Mostaganem", 750, 450], ["M'Sila", 850, 500], ["Mascara", 700, 450], ["Ouargla", 950, 600], ["Oran", 700, 450], ["El Bayadh", 1000, 750], ["Illizi", 1550, 1150], ["Bordj Bou Arreridj", 800, 450], ["Boumerdes", 750, 450], ["El Tarf", 850, 500], ["Tindouf", 1300, 800], ["Tissemsilt", 700, 450], ["El Oued", 1000, 600], ["Khenchela", 800, 500], ["Souk Ahras", 800, 500], ["Tipaza", 700, 450], ["Mila", 800, 450], ["Ain Defla", 450, 300], ["Naama", 1000, 600], ["Ain Temouchent", 750, 450], ["Ghardaia", 1000, 600], ["Relizane", 750, 450], ["Timimoun", 1350, 900], ["Bordj Badji Mokhtar", 0, 0], ["Ouled Djellal", 900, 550], ["Béni Abbès", 1100, 900], ["In Salah", 1550, 1100], ["In Guezzam", 0, 0], ["Touggourt", 950, 600], ["Djanet", 2200, 1600], ["M'Ghair", 950, 600], ["Meniaa", 950, 600]];
 const defShip=()=>Object.fromEntries(W.map(([w,h,d],i)=>[(i+1)+" - "+w,[h,d]]));
-let P=[],O=[],S=defShip(),cat="All",db=null,assets=true,isAdmin=false,tab="orders",filt="all";
+let P=[],O=[],S=defShip(),cat="All",db=null,assets=true,isAdmin=false,tab="orders",filt="all",loaded=false;
+const SK=Array(8).fill('<article class="card sk" aria-hidden="true"><div class="im"></div><div class="b"><i></i><i></i></div></article>').join("");
 const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const cmp=(a,b)=>(a.pos||0)-(b.pos||0)||String(b.created_at||"").localeCompare(String(a.created_at||""));
 const vs=p=>{try{const a=JSON.parse(p.variants);if(Array.isArray(a)&&a.length)return a}catch(e){}return(p.colors||"").split(",").map(s=>s.trim()).filter(Boolean).map(n=>({n,i:""}))},clean=s=>s.replace(/\.[^.]+$/,"").replace(/[_-]+/g," ").normalize("NFC").trim(),money=n=>Number(n).toLocaleString("en")+(isAr()?" دج":" DZD"),uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
@@ -132,17 +152,33 @@ async function load(){
  if(p.error)p=await sb.from("products").select("*");P=(p.data||[]).sort(cmp);const has=s.data&&s.data.length;if(has)S=Object.fromEntries(s.data.map(r=>[r.wilaya,[r.home,r.desk]]));
  if(isAdmin){const o=await sb.from("orders").select("*").order("ts",{ascending:false});O=o.data||[];
   if(!has)await sb.from("shipping").upsert(Object.entries(S).map(([w,[a,b]])=>({wilaya:w,home:a,desk:b,n:parseInt(w)})))}}
+const modalOpen=()=>$("#ov").classList.contains("on"),CK="rv_cache_v1";
+function soft(){if(location.hash==="#admin"||!modalOpen())render();else shop()}
+function saveCache(){try{localStorage.setItem(CK,JSON.stringify({p:P,s:S}))}catch(e){}}
+async function refresh(pre){
+ const p=pre.p?await pre.p:null,s=pre.s?await pre.s:null;
+ if(!p){await sbReady;if(!sb||SB_URL.startsWith("PASTE")){loaded=true;render();$("#app").insertAdjacentHTML("afterbegin",'<div class="note">Shop not connected yet. Add your Supabase URL and key in the code.</div>');return}
+  await load();loaded=true;saveCache();soft();return}
+ const op=modalOpen()?(location.hash.match(/^#p-(.+)$/)||[])[1]:null,sig=x=>x&&JSON.stringify([x.price,x.sale,x.variants,x.colors]),was=sig(op&&P.find(x=>x.id===op));
+ P=p.slice().sort(cmp);if(s&&s.length)S=Object.fromEntries(s.map(r=>[r.wilaya,[r.home,r.desk]]));
+ loaded=true;saveCache();
+ if(location.hash==="#admin")return;
+ shop();if(!modalOpen()||!$("#f"))return;
+ if(op&&was!==sig(P.find(x=>x.id===op))&&!window.__dirty)orderForm(op);else if(window.__calc)window.__calc()}
 async function init(){
+ try{const c=JSON.parse(localStorage.getItem(CK)||"null");if(c&&Array.isArray(c.p)&&c.p.length){P=c.p;loaded=true;if(c.s&&Object.keys(c.s).length)S=c.s}}catch(e){}
  render();
- if(!sb||SB_URL.startsWith("PASTE")){$("#app").insertAdjacentHTML("afterbegin",'<div class="note">Shop not connected yet. Add your Supabase URL and key in the code.</div>');return}
- const{data}=await sb.auth.getSession();isAdmin=!!data.session;await load();render()}
+ const pre=window.__pre||{},m=location.hash.match(/^#p-(.+)$/);
+ if(m&&!P.find(x=>x.id===m[1])&&pre.one)pre.one.then(r=>{if(r&&r[0]&&!P.find(x=>x.id===r[0].id)){P.push(r[0]);soft()}});
+ refresh(pre);
+ sbReady.then(async()=>{if(!sb)return;const{data}=await sb.auth.getSession();isAdmin=!!data.session;if(isAdmin||location.hash==="#admin"){await load();loaded=true;soft()}})}
 const ship=(w,t)=>(S[w]||[0,0])[t==="desk"?1:0];
 function render(){applyLang();const h=location.hash,m=h.match(/^#p-(.+)$/);if(h==="#admin")return admin();shop();if(m&&P.find(x=>x.id===m[1]))orderForm(m[1])}
 addEventListener("hashchange",render);
 function shop(){
  const list=P.filter(p=>cat==="All"||p.cat===cat);
  $("#app").innerHTML=`<nav class="chips">${["All",...CATS].map(c=>`<button class="chip ${c===cat?"on":""}" data-c="${c}">${catL(c)}</button>`).join("")}</nav>
- <div class="grid">${list.map(p=>`<article class="card"><img src="${esc(p.img)}" alt="${esc(p.name)}" loading="lazy"><div class="b"><h3>${esc(p.name)}</h3><div class="price">${pr(p)}</div>${p.colors?`<div style="color:var(--mu);font-size:.85rem">${esc(colorsL(p.colors))}</div>`:""}<button class="btn" data-o="${p.id}" ${soldOut(p)?"disabled":""}>${soldOut(p)?T("نفد المخزون","Sold out"):T("اطلب الآن","Order now")}</button></div></article>`).join("")||`<div class="empty">${T("المتجر فارغ حالياً، عد قريباً.","The vault is empty for now. Check back soon.")}</div>`}</div>`;
+ <div class="grid">${list.map((p,i)=>`<article class="card"><img src="${esc(p.img)}" alt="${esc(p.name)}" width="400" height="400" decoding="async" ${i<4?(i<2?'fetchpriority="high"':""):'loading="lazy"'}><div class="b"><h3>${esc(p.name)}</h3><div class="price">${pr(p)}</div>${p.colors?`<div style="color:var(--mu);font-size:.85rem">${esc(colorsL(p.colors))}</div>`:""}<button class="btn" data-o="${p.id}" ${soldOut(p)?"disabled":""}>${soldOut(p)?T("نفد المخزون","Sold out"):T("اطلب الآن","Order now")}</button></div></article>`).join("")||(!loaded?SK:`<div class="empty">${T("المتجر فارغ حالياً، عد قريباً.","The vault is empty for now. Check back soon.")}</div>`)}</div>`;
  document.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{cat=b.dataset.c;shop()});
  document.querySelectorAll("[data-o]").forEach(b=>b.onclick=()=>orderForm(b.dataset.o))}
 const closeM=()=>{vcId=null;$("#ov").classList.remove("on");if(/^#p-/.test(location.hash))history.replaceState(null,"",location.pathname+location.search)};
@@ -164,10 +200,10 @@ function orderForm(id){
   $("#ad").style.display=t==="home"?"block":"none";f.address.required=t==="home";
   $("#s1").textContent=money(cur(p)*q);$("#s2").textContent=w?money(sh):T("اختر الولاية","Choose wilaya");$("#s3").textContent=money(cur(p)*q+sh)};
  f.addEventListener("invalid",e=>{e.preventDefault();const n=e.target.name,m={name:["يرجى إدخال الاسم الكامل","Please enter your full name"],phone:["يرجى إدخال رقم الهاتف","Please enter your phone number"],wilaya:["يرجى اختيار الولاية","Please choose your wilaya"],commune:["يرجى إدخال البلدية","Please enter your commune"],address:["يرجى إدخال العنوان","Please enter your address"],color:["يرجى اختيار اللون","Please choose a color"]},x=m[n]||["يرجى ملء هذا الحقل","Please fill this field"];showErr(T(x[0],x[1]));if(e.target.focus)e.target.focus()},true);
- let ic=0;f.oninput=()=>{hideErr();if(!ic){ic=1;trk("InitiateCheckout",{content_name:p.name,value:cur(p),currency:"DZD"})}if(f.color){const c=cs.find(x=>x.n===f.color.value);if(c&&c.i)$("#mi").src=c.i}calc()};calc();
+ let ic=0;f.oninput=()=>{window.__dirty=true;hideErr();if(!ic){ic=1;trk("InitiateCheckout",{content_name:p.name,value:cur(p),currency:"DZD"})}if(f.color){const c=cs.find(x=>x.n===f.color.value);if(c&&c.i)$("#mi").src=c.i}calc()};window.__calc=calc;window.__dirty=false;calc();
  f.onsubmit=async e=>{e.preventDefault();if(f.dataset.busy)return;f.dataset.busy="1";const ph=normPhone(f.phone.value);if(!ph){showErr(T("يرجى إدخال رقم هاتف جزائري صحيح، مثال: 0555123456","Please enter a valid Algerian phone number, for example 0555123456"));f.phone.focus();delete f.dataset.busy;return}f.phone.value=ph;const q=+f.qty.value||1,sh=ship(f.wilaya.value,f.type.value);
   const o={id:uid(),ts:Date.now(),pid:p.id,name:f.name.value.trim(),phone:f.phone.value.trim(),wilaya:f.wilaya.value,commune:f.commune.value.trim(),address:f.type.value==="home"?f.address.value.trim():"Stop desk",type:f.type.value,qty:q,product:p.name,color:f.color?f.color.value:"",img:p.img,price:cur(p)*q,ship:sh,total:cur(p)*q+sh,status:"waiting"};
-  const r=await sb.from("orders").insert(o);if(r.error){const so=/out_of_stock/.test(r.error.message||"");toast(so?T("عذراً، هذا اللون نفد للتو أو الكمية غير متوفرة.","Sorry, this color just sold out or that quantity is not available."):T("تعذر إرسال الطلب، يرجى المحاولة مرة أخرى.","Could not send the order. Please try again."));if(so)load().then(shop);delete f.dataset.busy;return}trk("Purchase",{value:o.total,currency:"DZD",content_name:o.product,content_type:"product",num_items:o.qty},{eventID:o.id});
+  await sbReady;const r=sb?await sb.from("orders").insert(o):{error:{message:"offline"}};if(r.error){const so=/out_of_stock/.test(r.error.message||"");toast(so?T("عذراً، هذا اللون نفد للتو أو الكمية غير متوفرة.","Sorry, this color just sold out or that quantity is not available."):T("تعذر إرسال الطلب، يرجى المحاولة مرة أخرى.","Could not send the order. Please try again."));if(so)load().then(shop);delete f.dataset.busy;return}trk("Purchase",{value:o.total,currency:"DZD",content_name:o.product,content_type:"product",num_items:o.qty},{eventID:o.id});
   modal(isAr()?`<h2>شكراً ${esc(o.name)}!</h2><p>تم استلام طلبك لـ <b>${esc(o.product)}</b>. سنتصل بك على الرقم <span dir="ltr">${esc(o.phone)}</span> لتأكيده.</p><p class="price">المجموع: ${money(o.total)}</p>`:`<h2>Thank you, ${esc(o.name)}!</h2><p>Your order for <b>${esc(o.product)}</b> was received. We will call you on ${esc(o.phone)} to confirm it.</p><p class="price">Total: ${money(o.total)}</p>`)}}
 function admin(){
  if(!isAdmin){$("#app").innerHTML=`<form id="lf" class="box" style="margin:30px auto"><h2>Owner login</h2><label>Email</label><input id="em" type="email" autocomplete="username"><label>Password</label><input id="pw" type="password" autocomplete="current-password"><button class="btn" id="go" type="submit" style="margin-top:12px;width:100%">Enter</button></form>`;
@@ -176,7 +212,7 @@ function admin(){
  $("#app").innerHTML=`<div class="tabs">${tb("orders","Orders ("+O.length+")")}${tb("products","Products")}${tb("ship","Shipping prices")}<a class="chip" href="#" style="text-decoration:none">View shop</a><button class="chip" id="lo">Log out</button></div><div id="pane"></div>`;
  document.querySelectorAll("[data-t]").forEach(b=>b.onclick=async()=>{tab=b.dataset.t;await load();admin()});
  $("#lo").onclick=async()=>{await sb.auth.signOut();isAdmin=false;O=[];admin()};({orders,products,ship:shipTab})[tab]()}
-const ST=[["waiting","Waiting"],["confirmed","Confirmed"],["false","False order"],["shipping","En Livraison"],["contacted","Client Contacté"],["noanswer","Ne réponds pas"]];
+const ST=[["waiting","Waiting"],["confirmed","Confirmed"],["false","False order"],["shipping","En Livraison"],["retour","Retour"],["contacted","Client Contacté"],["noanswer","Ne réponds pas"]];
 function orders(){
  const list=O.filter(o=>filt==="all"||o.status===filt).sort((a,b)=>b.ts-a.ts);
  $("#pane").innerHTML=`<div class="tabs">${[["all","All"],...ST].map(([k,l])=>`<button class="chip ${filt===k?"on":""}" data-f="${k}">${l}${k==="all"?"":" ("+O.filter(o=>o.status===k).length+")"}</button>`).join("")}</div>`+
@@ -233,8 +269,9 @@ async function saveShip(){
  const ex=await sb.from("shipping").select("wilaya"),old=(ex.data||[]).map(x=>x.wilaya).filter(w=>!(w in S));
  if(old.length){const d=await sb.from("shipping").delete().in("wilaya",old);if(d.error)return toast("Could not remove old rows: "+d.error.message)}
  toast("Prices saved")}
-function readXls(f){
- if(typeof XLSX==="undefined")return toast("Excel reader did not load. Check your internet and reload.");
+function loadXlsx(){return window.XLSX?Promise.resolve():new Promise((ok,no)=>{const e=document.createElement("script");e.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";e.onload=ok;e.onerror=no;document.head.appendChild(e)})}
+function readXls(f){loadXlsx().then(()=>readXls2(f),()=>toast("Excel reader did not load. Check your internet and reload."))}
+function readXls2(f){
  const rd=new FileReader();rd.onload=()=>{try{
   const wb=XLSX.read(rd.result,{type:"array"}),rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:""});
   const hi=rows.findIndex(r=>r.some(c=>/^\s*wilaya/i.test(c))&&r.some(c=>/domicile|home/i.test(c)));if(hi<0)throw 0;
@@ -248,10 +285,10 @@ function readXls(f){
 $("#ov").onclick=e=>{if(e.target.id==="ov")closeM()};
 (function(){const c=$("#bg"),x=c.getContext("2d"),G=["✦","✧","✦","✧","✦","✧"],R=matchMedia("(prefers-reduced-motion: reduce)").matches;let w,h,ps=[];
  const sz=()=>{w=c.width=innerWidth;h=c.height=innerHeight};sz();addEventListener("resize",sz);
- for(let i=0;i<32;i++)ps.push({g:G[i%G.length],x:Math.random()*w,y:Math.random()*h,s:14+Math.random()*30,v:.15+Math.random()*.35,a:.08+Math.random()*.2,p:Math.random()*6});
+ for(let i=0;i<(innerWidth<600?16:28);i++)ps.push({g:G[i%G.length],x:Math.random()*w,y:Math.random()*h,s:14+Math.random()*30,v:.15+Math.random()*.35,a:.08+Math.random()*.2,p:Math.random()*6});
  function d(t){x.clearRect(0,0,w,h);ps.forEach(p=>{if(!R){p.y-=p.v;p.x+=Math.sin(t/2500+p.p)*.3;if(p.y<-50){p.y=h+50;p.x=Math.random()*w}}
-  x.font=p.s+"px serif";x.fillStyle="rgba(168,85,247,"+(p.a*(.7+.3*Math.sin(t/900+p.p)))+")";x.shadowColor="#a855f7";x.shadowBlur=14;x.fillText(p.g,p.x,p.y)});if(!R)requestAnimationFrame(d)}
- requestAnimationFrame(d)})();
+  x.font=p.s+"px serif";x.fillStyle="rgba(168,85,247,"+(p.a*(.7+.3*Math.sin(t/900+p.p)))+")";x.shadowColor="#a855f7";x.shadowBlur=8;x.fillText(p.g,p.x,p.y)});if(!R)requestAnimationFrame(d)}
+ (window.requestIdleCallback?f=>requestIdleCallback(f,{timeout:1500}):f=>setTimeout(f,300))(()=>requestAnimationFrame(d))})();
 $("#lg").onclick=()=>{L=L==="ar"?"en":"ar";try{localStorage.setItem("lang",L)}catch(e){}render()};
 const WA_NUM="213563409029",IG_URL="https://www.instagram.com/retro_vault66/",FB_URL="https://www.facebook.com/profile.php?id=100064048272757";
 function social(){
